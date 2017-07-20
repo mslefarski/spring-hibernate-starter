@@ -1,19 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>mslefarski</groupId>
 	<artifactId>springboot</artifactId>
-	<packaging>war</packaging>
 	<version>0.1</version>
 	<name>springboot Maven Webapp</name>
 	<url>http://maven.apache.org</url>
+	<packaging>war</packaging>
 
 	<properties>
 		<org.springframework.version>4.3.9.RELEASE</org.springframework.version>
 	</properties>
 
+	<build>
+		<!-- nalezy pamietac, aby w pliku tomcat-users.xml uwzglednić rolę manager-script -->
+		<!-- <user username="tomcat" password="admin" roles="manager-gui,manager-script"/> -->
+		<plugins>
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<url>http://localhost:8080/manager/text</url>
+					<username>tomcat</username>
+					<password>admin</password>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<includeEmptyDirs>true</includeEmptyDirs>
+				</configuration>
+			</plugin>
+		</plugins>
+
+
+		<!-- Podajemy lokalizacją plików properties z których będziemy zasysać 
+			wartości -->
+		<filters>
+			<filter>src/main/resources/properties/${build.profile.id}/props.properties</filter>
+		</filters>
+		<!-- Podajemy lokalizację plików, które maven zestakuje i podmieni wartości -->
+		<resources>
+			<resource>
+				<filtering>true</filtering>
+				<directory>src/main/resources/</directory>
+			</resource>
+		</resources>
+	</build>
+
+
+
 
 	<dependencies>
+
 
 		<!-- JUnit -->
 		<dependency>
@@ -146,7 +190,6 @@
 			<version>${org.springframework.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- SPRING -->
 
 		<!-- HIBERNATE -->
 		<!-- https://mvnrepository.com/artifact/antlr/antlr -->
@@ -275,7 +318,22 @@
 	</dependencies>
 
 
-	<build>
-		<finalName>springboot</finalName>
-	</build>
+	<!-- PROFILES -->
+	<profiles>
+		<profile>
+			<id>local</id>
+			<activation>
+			<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<build.profile.id>local</build.profile.id>
+			</properties>
+		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<build.profile.id>dev</build.profile.id>
+			</properties>
+		</profile>
+	</profiles>
 </project>
